@@ -111,12 +111,13 @@ type consumerOptions struct {
 func defaultPushConsumerOptions() consumerOptions {
 	opts := consumerOptions{
 		ClientOptions:              internal.DefaultClientOptions(),
+		MaxReconsumeTimes:          -1,
+		ConsumeTimeout:             30 * time.Second,
+		ConsumerModel:              Clustering,
 		Strategy:                   AllocateByAveragely,
 		MaxTimeConsumeContinuously: time.Duration(60 * time.Second),
-		RebalanceLockInterval:      20 * time.Second,
-		MaxReconsumeTimes:          -1,
-		ConsumerModel:              Clustering,
 		AutoCommit:                 true,
+		RebalanceLockInterval:      20 * time.Second,
 		Resolver:                   primitive.NewHttpResolver("DEFAULT"),
 	}
 	opts.ClientOptions.GroupName = "DEFAULT_CONSUMER"
@@ -272,5 +273,11 @@ func WithNameServer(nameServers primitive.NamesrvAddr) Option {
 func WithNameServerDomain(nameServerUrl string) Option {
 	return func(opts *consumerOptions) {
 		opts.Resolver = primitive.NewHttpResolver("DEFAULT", nameServerUrl)
+	}
+}
+
+func WithConsumeTimeout(d time.Duration) Option {
+	return func(opts *consumerOptions) {
+		opts.ConsumeTimeout = d
 	}
 }
